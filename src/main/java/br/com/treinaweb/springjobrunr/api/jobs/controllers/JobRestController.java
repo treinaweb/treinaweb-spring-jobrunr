@@ -1,5 +1,7 @@
 package br.com.treinaweb.springjobrunr.api.jobs.controllers;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 import org.jobrunr.scheduling.JobBuilder;
@@ -29,6 +31,26 @@ public class JobRestController {
         var job1Id = jobScheduler.create(job);
 
         var job2Id = jobScheduler.enqueue(sampleJob::simpleJob);
+
+        return Map.of(
+            "job1Id", job1Id.toString(),
+            "job2Id", job2Id.toString()
+        );
+    }
+
+    @GetMapping("/scheduled")
+    public Map<String, String> scheduled(@RequestParam String arg) {
+        var job1Id = jobScheduler.schedule(
+            Instant.now().plusSeconds(30), 
+            () -> sampleJob.simpleJobWithArg(arg)
+        );
+
+        var job = JobBuilder.aJob()
+            .scheduleIn(Duration.ofSeconds(30))
+            .withName("Sample Job - Simple Job With Arg")
+            .withLabels("sample-job", "simple-job-with-arg", "scheduled")
+            .withDetails(() -> sampleJob.simpleJobWithArg(arg));
+        var job2Id = jobScheduler.create(job);
 
         return Map.of(
             "job1Id", job1Id.toString(),
