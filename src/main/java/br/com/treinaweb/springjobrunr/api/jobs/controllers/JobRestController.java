@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.jobrunr.scheduling.JobBuilder;
 import org.jobrunr.scheduling.JobScheduler;
+import org.jobrunr.scheduling.RecurringJobBuilder;
+import org.jobrunr.scheduling.cron.Cron;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,6 +58,23 @@ public class JobRestController {
             "job1Id", job1Id.toString(),
             "job2Id", job2Id.toString()
         );
+    }
+
+    @GetMapping("/recurring")
+    public Map<String, String> recurring(@RequestParam String arg) {
+        var job = RecurringJobBuilder.aRecurringJob()
+            .withName("Simple Job - Recurring")
+            .withLabels("sample-job", "simple-job-with-arg", "recurring")
+            .withCron(Cron.every30seconds())
+            .withDetails(() -> sampleJob.simpleJobWithArg(arg));
+        var job1Id = jobScheduler.createRecurrently(job);
+
+        var job2Id = jobScheduler.scheduleRecurrently(
+            Cron.every30seconds(),
+            () -> sampleJob.simpleJobWithArg(arg)
+        );
+
+        return Map.of("job1Id", job1Id, "job2Id", job2Id);
     }
     
 }
