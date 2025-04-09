@@ -15,7 +15,7 @@ public class SampleJob {
     
     private final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(SampleJob.class));
 
-    @Job(name = "Sample Job - Simple Job", labels = { "smaple-job", "simple-job", "fire-and-forget" })
+    @Job(name = "Sample Job - Simple Job", labels = { "smaple-job", "simple-job", "fire-and-forget" }, retries = 3)
     public void simpleJob() {
         log.info("Executing a simple job");
     }
@@ -44,6 +44,11 @@ public class SampleJob {
             log.info("Method interrupted");
             Thread.currentThread().interrupt();
         }
+    }
+
+    public void executionFailed() {
+        log.info("This job will fail");
+        throw new RuntimeException("Job failed");
     }
 
 }

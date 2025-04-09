@@ -29,6 +29,7 @@ public class JobRestController {
     @GetMapping("/fire-and-forget")
     public Map<String, String> fireAndForget(@RequestParam String arg) {
         var job = JobBuilder.aJob()
+            .withAmountOfRetries(3)
             .withName("Sample Job - Simple Job With Arg")
             .withLabels("sample-job", "simple-job-with-arg", "fire-and-forget")
             .withDetails(() -> sampleJob.simpleJobWithArg(arg));
@@ -82,6 +83,12 @@ public class JobRestController {
     @GetMapping("/long-running")
     public Map<String, String> longRunning(@RequestParam List<String> languages) {
         var jobId = jobScheduler.enqueue(() -> sampleJob.processLanguages(languages, JobContext.Null));
+        return Map.of("jobId", jobId.toString());
+    }
+
+    @GetMapping("/failed")
+    public Map<String, String> failed() {
+        var jobId = jobScheduler.enqueue(sampleJob::executionFailed);
         return Map.of("jobId", jobId.toString());
     }
 }
