@@ -2,8 +2,10 @@ package br.com.treinaweb.springjobrunr.api.jobs.controllers;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
+import org.jobrunr.jobs.context.JobContext;
 import org.jobrunr.scheduling.JobBuilder;
 import org.jobrunr.scheduling.JobScheduler;
 import org.jobrunr.scheduling.RecurringJobBuilder;
@@ -76,5 +78,10 @@ public class JobRestController {
 
         return Map.of("job1Id", job1Id, "job2Id", job2Id);
     }
-    
+
+    @GetMapping("/long-running")
+    public Map<String, String> longRunning(@RequestParam List<String> languages) {
+        var jobId = jobScheduler.enqueue(() -> sampleJob.processLanguages(languages, JobContext.Null));
+        return Map.of("jobId", jobId.toString());
+    }
 }
